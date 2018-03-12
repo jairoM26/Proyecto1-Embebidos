@@ -58,9 +58,20 @@ int pinMode(int pin, int MODE)
 }
 
 int digitalWrite(int pin, int value)
-{
-	*(gpio+7)=value;
-	return 1;
+{	
+	if(value == 1)
+	{
+		*(gpio+7)=1<<pin;
+	}
+	else if(value == 0)
+	{
+		*(gpio+10)=1<<pin;
+	}
+	else
+	{
+		return 1;
+	}
+	return 0;
 }
 
 int digitalRead(int pin)
@@ -70,6 +81,30 @@ int digitalRead(int pin)
 
 int blink(int pin,int freq,int duration)
 {
-	return 1;
+	int g,rep;
+
+	// Set GPIO pins 7-11 to output to blink
+	for (g=7; g<=11; g++)
+	{
+		pinMode(g,0);// 0 = Output
+		//INP_GPIO(g); // must use INP_GPIO before we can use OUT_GPIO
+		//OUT_GPIO(g);
+	}
+
+	for (rep=0; rep<duration; rep++)
+	{
+		for (g=7; g<=11; g++)
+		{
+			//GPIO_SET = 1<<g;
+			digitalWrite(g, 1);
+			sleep(1/freq);
+		}
+		for (g=7; g<=11; g++)
+		{
+			//GPIO_CLR = 1<<g;
+			digitalWrite(g, 0);			
+			sleep(1/freq);
+		}
+	}
 }
 

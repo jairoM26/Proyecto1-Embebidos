@@ -19,17 +19,21 @@ int main(int argc, char const *argv[])
 	for (g=7; g<=11; g++)
 	{
 		pinMode(g,0);// 0 = Output
+		//INP_GPIO(g); // must use INP_GPIO before we can use OUT_GPIO
+		//OUT_GPIO(g);
 	}
 
 	for (rep=0; rep<10; rep++)
 	{
 		for (g=7; g<=11; g++)
 		{
+			//GPIO_SET = 1<<g;
 			digitalWrite(g, 1);
 			sleep(1);
 		}
 		for (g=7; g<=11; g++)
 		{
+			//GPIO_CLR = 1<<g;
 			digitalWrite(g, 0);			
 			sleep(1);
 		}

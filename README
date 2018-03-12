@@ -1,4 +1,8 @@
 Instructions to build in the library directory
+
+	Setup the environment for ARM with
+	. /opt/poky/2.4.2/environment-setup-cortexa7hf-neon-vfpv4-poky-linux-gnueabi 
+
 	mkdir build && cd build
 	mkdir usr
 	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/home/USER/libGPIO/build/usr/
@@ -6,4 +10,3 @@ Instructions to build in the library directory
 	make install
 	scp -r usr/ root@192.168.0.13:/home/root/	#Check correct IP (ifconfig in Yocto)
 	LD_LIBRARY_PATH=/home/root/usr/lib/
-

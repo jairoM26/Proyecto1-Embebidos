@@ -1,1 +1,9 @@
-Instructions to execute
+Instructions to build in the library directory
+	mkdir build && cd build
+	mkdir usr
+	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/home/USER/libGPIO/build/usr/
+	make
+	make install
+	scp -r usr/ root@192.168.0.13:/home/root/	#Check correct IP (ifconfig in Yocto)
+	LD_LIBRARY_PATH=/home/root/usr/lib/
+

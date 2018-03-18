@@ -1,11 +1,14 @@
 #include <GPIO.h>
 #include <stdio.h>
-/*
-Para verificar la biblioteca deberá crear una aplicación que configure dos gpios de la tarjeta como salida
-y uno como entrada. La aplicación debe escribir valores binarios (0,1) a uno de los gpio configurados
-como salidas y en el otro establecer un blink a una frecuencia determinada por una duración de 5 s.
-Adicionalmente, se debe leer el valor del pin configurado como entrada y presentarlo en pantalla.
-*/
+
+///
+/// @file    World.cxx
+/// @author  Barthelemy von Haller
+///
+/// Para verificar la biblioteca deberá crear una aplicación que configure dos gpios de la tarjeta como salida
+/// y uno como entrada. La aplicación debe escribir valores binarios (0,1) a uno de los gpio configurados
+/// como salidas y en el otro establecer un blink a una frecuencia determinada por una duración de 5 s.
+/// Adicionalmente, se debe leer el valor del pin configurado como entrada y presentarlo en pantalla.
 
 int main(int argc, char const *argv[])
 {

@@ -1,0 +1,18 @@
+Dinamyc Library to manage the GPIO in the Raspberry Pi 3
+
+
+---------------------------Instructions to build and install----------------------------
+
+Execute the following commmands:
+	cd libGPIO
+	mkdir build && cd build
+	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/home/abrahamon/Documents/Embebidos/Proyecto1-Embebidos/Code/libGPIO/build
+	make
+	make install
+To create the package:
+	make package_source
+If installed in other place than /usr, use the following:
+	export LD_LIBRARY_PATH=/home/USUARIO/cmake/sayhello/build/usr/lib
+	
+
+If creating a image with yocto, also this library can be installed with a recipe

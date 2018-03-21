@@ -1,3 +1,12 @@
+/****************************************************************************
+ * 										                                    *
+ *                                                                          *
+ *            				                                                *
+ *                                                                          *
+ *                                                                          *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,11 +14,16 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-///
-/// @file    GPIO.h
-/// @author  Abraham, David, Jairo
-///
+/**
+ * @file GPIO.h
+ * @author Abraham, David, Jairo
+ * @date 21 Marzo 2018
+ * @brief libGPIO header file.
+ *
+ */
 
+/** @brief DIR
+**/
 #define BCM2708_PERI_BASE        0x3F000000
 //GPIO controller
 #define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) 
@@ -34,13 +48,17 @@ volatile unsigned *gpio;
 
 /** @brief   Set up a memory regions to access GPIO
  Make shure to use it at the begining of your code.
- @author 	Abraham Arias
- @param n (void) void.
+ @author 	Abraham, David, Jairo
  @return void.
-*/
+**/
 void setup_io();
 
-//Permite establecer el modo (entrada/salida) de un pin específico (número de pin/gpio)
+/** @brief   Permite establecer el modo (entrada/salida) de un pin específico (número de pin/gpio)
+ @author 	Abraham, David, Jairo
+ @param pin Number of the GPIO
+ @param MODE 0 for Output, 1 for Input			
+ @return int 0 if success.
+**/
 int pinMode(int pin, int MODE);
 
 //Permite escribir un valor de 0 o 1 en el pin especı́fico configurado como salida.

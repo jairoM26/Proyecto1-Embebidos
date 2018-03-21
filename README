@@ -10,4 +10,3 @@ Instructions to build in the library directory
 	make install
 	scp -r usr/ root@192.168.0.13:/home/root/	#Check correct IP (ifconfig in Yocto)
 	LD_LIBRARY_PATH=/home/root/usr/lib/
-

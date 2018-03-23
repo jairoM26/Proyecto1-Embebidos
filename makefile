@@ -3,6 +3,8 @@ File= gpio
 exe= test
 
 all: $(SUBDIRS)
+	
+run:
 	././src/main
 
 $(SUBDIRS):

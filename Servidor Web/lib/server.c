@@ -63,7 +63,7 @@ void server(){
         perror("bind failed");  
         exit(EXIT_FAILURE);  
     }  
-    printf("Listener on port %d \n", PORT);  
+    //printf("Listener on port %d \n", PORT);  
         
     //try to specify maximum of 3 pending connections for the master socket 
     if (listen(master_socket, 3) < 0)  
@@ -74,7 +74,7 @@ void server(){
         
     //accept the incoming connection 
     addrlen = sizeof(address);  
-    puts("Waiting for connections ...");  
+    //puts("Waiting for connections ...");  
         
     while(TRUE)  
     {  
@@ -121,7 +121,7 @@ void server(){
             }  
             
             //inform user of socket number - used in send and receive commands 
-            printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs (address.sin_port));  
+            //printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs (address.sin_port));  
           
             //send new connection greeting message 
             if( send(new_socket, message, strlen(message), 0) != strlen(message) )  
@@ -129,7 +129,7 @@ void server(){
                 perror("send");  
             }  
                 
-            puts("Welcome message sent successfully");  
+            //puts("Welcome message sent successfully");  
                 
             //add new socket to array of sockets 
             for (i = 0; i < max_clients; i++)  
@@ -138,13 +138,12 @@ void server(){
                 if( client_socket[i] == 0 )  
                 {  
                     client_socket[i] = new_socket;  
-                    printf("Adding to list of sockets as %d\n" , i);  
+                    //printf("Adding to list of sockets as %d\n" , i);  
                         
                     break;  
                 }  
             }  
         }  
-            
         //else its some IO operation on some other socket
         for (i = 0; i < max_clients; i++)  
         {  
@@ -159,8 +158,8 @@ void server(){
                     //Somebody disconnected , get his details and print 
                     getpeername(sd , (struct sockaddr*)&address , \
                         (socklen_t*)&addrlen);  
-                    printf("Host disconnected , ip %s , port %d \n" , 
-                          inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
+                   // printf("Host disconnected , ip %s , port %d \n" , 
+                     //     inet_ntoa(address.sin_addr) , ntohs(address.sin_port));  
                         
                     //Close the socket and mark as 0 in list for reuse 
                     close( sd );  
@@ -179,7 +178,11 @@ void server(){
                     if(strcmp(tmp, "imagen") == 0){                        
                         char * msg = "Here is your image\n";
                         send(sd , msg , strlen(msg) , 0 );                      
-                    }                    
+                    } 
+                    else{
+                        char * msg = "some msg\n";
+                        send(sd , msg , strlen(msg) , 0 ); 
+                    }                   
                 }  
             }  
         }  
@@ -187,11 +190,14 @@ void server(){
 }
 
 char* sendImage(){
-    char * tmp = ""
+    char * tmp = "";
     return tmp;
 }
-int main(int argc, char const *argv[])
-{
-    server();
-    return 0;
+
+void setLed(int i){    
+}
+
+char* getDoor(int i){
+    char * tmp = "";
+    return tmp;
 }

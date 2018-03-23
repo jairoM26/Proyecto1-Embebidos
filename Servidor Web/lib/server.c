@@ -179,6 +179,10 @@ void server(){
                         char * msg = "Here is your image\n";
                         send(sd , msg , strlen(msg) , 0 );                      
                     } 
+                    else if(strcmp(tmp, "hola") == 0){
+                      char * msg = "adios\n";
+                        send(sd , msg , strlen(msg) , 0 );                        
+                    }
                     else{
                         char * msg = "some msg\n";
                         send(sd , msg , strlen(msg) , 0 ); 

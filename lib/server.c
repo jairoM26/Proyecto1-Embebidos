@@ -9,12 +9,34 @@
 #include <netinet/in.h> 
 #include <string.h>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
+#include "../include/gpio.h"
     
 #define TRUE   1 
 #define FALSE  0 
 #define PORT 8888
 
+void setGPIO(){
+    setup_io();
+}
+
+char* sendImage(){
+    char * tmp = "";
+    return tmp;
+}
+
+void setLed(int i){    
+}
+
+char* getDoor(int i){
+    char * tmp = "";
+    return tmp;
+}
+
 void server(){ 
+
+    setGPIO();
+    configure_pin(10);
+
     int opt = TRUE;  
     int convertdata;
     int master_socket , addrlen , new_socket , client_socket[30] , 
@@ -172,7 +194,7 @@ void server(){
                     //set the string terminating NULL byte on the end 
                     //of the data read 
                     buffer[valread] = '\0';   
-                    char tmp[sizeof(buffer)];
+                    char tmp[sizeof(buffer)] = "";
                     strncpy(tmp, buffer, strlen(buffer) -2);
                     convertdata = (int)(strlen(tmp));
                     if(strcmp(tmp, "imagen") == 0){                        
@@ -183,6 +205,12 @@ void server(){
                       char * msg = "adios\n";
                         send(sd , msg , strlen(msg) , 0 );                        
                     }
+                    else if(strcmp(tmp, "1") == 0){
+                        set_pin(10,1);
+                    }
+                    else if(strcmp(tmp, "0") == 0){
+                        set_pin(10,0);
+                    }
                     else{
                         char * msg = "some msg\n";
                         send(sd , msg , strlen(msg) , 0 ); 
@@ -191,17 +219,4 @@ void server(){
             }  
         }  
     }  
-}
-
-char* sendImage(){
-    char * tmp = "";
-    return tmp;
-}
-
-void setLed(int i){    
-}
-
-char* getDoor(int i){
-    char * tmp = "";
-    return tmp;
 }

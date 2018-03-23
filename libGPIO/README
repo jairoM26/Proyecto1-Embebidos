@@ -12,7 +12,7 @@ Execute the following commmands:
 To create the package:
 	make package_source
 If installed in other place than /usr, use the following:
-	export LD_LIBRARY_PATH=/home/USUARIO/cmake/sayhello/build/usr/lib
+	export LD_LIBRARY_PATH=/home/$USER$/cmake/sayhello/build/usr/lib
 	
 
 If creating a image with yocto, also this library can be installed with a recipe

@@ -1,3 +1,16 @@
 These files are placed in the rpi/conf/ directory
 
 Change the path to this files, and download the requiered layers.
+
+
+/poky-rocko
+	/Downloads
+	/meta-atmel
+	/meta-openembedded
+	/meta-poky
+	/meta-raspberrypi
+	/rpi
+		/meta-rpi
+		/conf
+			/bblayers.conf
+			/local.conf

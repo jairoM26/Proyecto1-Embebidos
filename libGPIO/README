@@ -11,6 +11,7 @@ Execute the following commmands:
 	make install
 To create the package:
 	make package_source
+	
 If installed in other place than /usr, use the following:
 	export LD_LIBRARY_PATH=/home/$USER$/cmake/sayhello/build/usr/lib
 	

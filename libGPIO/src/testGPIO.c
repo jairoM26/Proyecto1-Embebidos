@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <string.h>   //strlen 
 #include <stdlib.h> 
+#include <stdint.h>
 #include <errno.h> 
 #include <unistd.h>   //close 
 #include <arpa/inet.h>    //close 
@@ -9,36 +10,132 @@
 #include <netinet/in.h> 
 #include <string.h>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
-
+#include <stdlib.h>
 #include <GPIO.h>
-#include <stdio.h>
+
 
 #define TRUE   1 
 #define FALSE  0 
-#define PORT 8888
+#define PORT 22000
 
-void setGPIO(){
-    setup_io();
+
+int l1,l2,l3,l4,l5;
+
+
+const char *file_path = "/home/root/image.jpg";
+const char *login_path = "/home/root/login.txt";
+const char *command = "fswebcam -d /dev/video0 -r 920x720 /home/root/image.jpg ";
+size_t fileLen;
+
+static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+                                'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                                'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+                                'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+                                'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                                'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                                'w', 'x', 'y', 'z', '0', '1', '2', '3',
+                                '4', '5', '6', '7', '8', '9', '+', '/'};
+static char *decoding_table = NULL;
+static int mod_table[] = {0, 2, 1};
+
+void build_decoding_table() {
+
+  decoding_table = malloc(256);
+
+  for (int i = 0; i < 64; i++)
+    decoding_table[(unsigned char) encoding_table[i]] = i;
 }
 
-char* sendImage(){
-    char * tmp = "";
-    return tmp;
+char *base64_encode(const unsigned char *data,
+                    size_t input_length,
+                    size_t *output_length) {
+
+  *output_length = 4 * ((input_length + 2) / 3);
+
+  char *encoded_data = malloc(*output_length);
+  if (encoded_data == NULL) return NULL;
+
+  for (int i = 0, j = 0; i < input_length;) {
+
+    uint32_t octet_a = i < input_length ? (unsigned char)data[i++] : 0;
+    uint32_t octet_b = i < input_length ? (unsigned char)data[i++] : 0;
+    uint32_t octet_c = i < input_length ? (unsigned char)data[i++] : 0;
+
+    uint32_t triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
+
+    encoded_data[j++] = encoding_table[(triple >> 3 * 6) & 0x3F];
+    encoded_data[j++] = encoding_table[(triple >> 2 * 6) & 0x3F];
+    encoded_data[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
+    encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
+  }
+
+  for (int i = 0; i < mod_table[input_length % 3]; i++)
+    encoded_data[*output_length - 1 - i] = '=';
+
+  return encoded_data;
 }
 
-void setLed(int i){    
+char* ReadFile(const char *name)
+{
+  FILE *file;
+  unsigned char *buffer;
+  char *lobi;
+
+  //Open file                                                                                                                                                                                                
+  file = fopen(name , "rb");
+  if (!file)
+    {
+      fprintf(stderr, "Unable to open file %s", name);
+    }
+
+  //Get file length                                                                                                                                                                                          
+  fseek(file, 0, SEEK_END);
+  fileLen=ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  //Allocate memory                                                                                                                                                                                          
+  buffer=(char *)malloc(fileLen+1);
+  if (!buffer)
+    {
+      fprintf(stderr, "Memory error!");
+      fclose(file);
+      
+    }
+
+  //Read file contents into buffer                                                                                                                                                                           
+  fread(buffer, fileLen, 1, file);
+  size_t output_length = 0; // note *NOT* a pointer
+  lobi = base64_encode(buffer, fileLen, &output_length); // note address-of operator
+  //printf("Data: %s\n", lobi);
+  fclose(file);
+  //insert_blob(buffer);
+  free(buffer);
+  return lobi;
 }
 
-char* getDoor(int i){
-    char * tmp = "";
-    return tmp;
-}
 
 void server(){ 
 
-    setGPIO();
-    configure_pin(10);
+    //Set de pines/////////////////////////////
+    
 
+    setup_io();
+    configure_pin(4); //garaje
+    configure_pin(27); //sala
+    configure_pin(17);  //cocina
+    configure_pin(3);   //cuarto
+    configure_pin(2);   //cuarto
+    configure_pin(18);  //Puerta garaje
+    configure_pin(25);  //Puerta Principal
+    configure_pin(24);  //Puerta Puerta cuarto
+    configure_pin(8);   //Puerta cuarto
+   
+
+
+
+
+    ////////////////////////////////////////
+    l1,l2,l3,l4,l5 = 0;
     int opt = TRUE;  
     int convertdata;
     int master_socket , addrlen , new_socket , client_socket[30] , 
@@ -195,37 +292,142 @@ void server(){
                 {  
                     //set the string terminating NULL byte on the end 
                     //of the data read 
-                    buffer[valread] = '\0';   
-                    char tmp[sizeof(buffer)] = "";
-                    strncpy(tmp, buffer, strlen(buffer) -2);
-                    convertdata = (int)(strlen(tmp));
-                    if(strcmp(tmp, "imagen") == 0){                        
-                        char * msg = "Here is your image\n";
-                        send(sd , msg , strlen(msg) , 0 );                      
+                    
+                    if(strcmp(buffer, "0\n") == 0){    
+                    	int status = system(command);
+                        char * msg = ReadFile(file_path);
+			printf("%s\n","Image send");
+                        send(sd , msg , strlen(msg) , 0 );   
+			char * msg1 = "\n";
+                        send(sd , msg1 , strlen(msg1) , 0 ); 
+                  
                     } 
-                    else if(strcmp(tmp, "hola") == 0){
-                      char * msg = "adios\n";
-                        send(sd , msg , strlen(msg) , 0 );                        
+                    if(strcmp(buffer, "1\n") == 0){
+                    	if(l1==1){
+				l1=0;
+				printf("%s\n","Ligth1 OFF");
+				set_pin(4,0);
+			} 
+			else{
+				l1=1;
+				printf("%s\n","Ligth1 ON");
+				set_pin(4,1);
+			}             
                     }
-                    else if(strcmp(tmp, "1") == 0){
-                        set_pin(10,1);
+		    if(strcmp(buffer, "2\n") == 0){
+                        if(l2==1){
+				l2=0;
+				printf("%s\n","Ligth2 OFF");
+				set_pin(27,0);
+			} 
+			else{
+				l2=1;
+				printf("%s\n","Ligth2 ON");
+				set_pin(27,1);
+			}                     
                     }
-                    else if(strcmp(tmp, "0") == 0){
-                        set_pin(10,0);
+		    if(strcmp(buffer, "3\n") == 0){
+                        if(l3==1){
+				l3=0;
+				printf("%s\n","Ligth3 OFF");
+				set_pin(17,0);
+			} 
+			else{
+				l3=1;
+				printf("%s\n","Ligth3 ON");
+				set_pin(17,1);
+			}                     
                     }
-                    else{
-                        char * msg = "some msg\n";
-                        send(sd , msg , strlen(msg) , 0 ); 
-                    }                   
+		    if(strcmp(buffer, "4\n") == 0){
+                        if(l4==1){
+				l4=0;
+				printf("%s\n","Ligth4 OFF");
+				set_pin(3,0);
+			} 
+			else{
+				l4=1;
+				printf("%s\n","Ligth4 ON");
+				set_pin(3,1);
+			}                    
+                    }
+                    if(strcmp(buffer, "5\n") == 0){
+                        if(l5==1){
+				l5=0;
+				printf("%s\n","Ligth5 OFF");
+				set_pin(2,0);
+			} 
+			else{
+				l5=1;
+				printf("%s\n","Ligth5 ON");
+				set_pin(2,1);
+			}                     
+                    }
+		    if(strcmp(buffer, "6\n") == 0){
+			printf("%s ","Signals send");
+			char  str1[1];
+			sprintf(str1, "%d", l1);
+			printf("%s",str1);
+			char  str2[1];
+			sprintf(str2, "%d", l2);
+			printf("%s",str2);
+			char  str3[1];
+			sprintf(str3, "%d", l3);
+			printf("%s",str3);
+			char  str4[1];
+			sprintf(str4, "%d", l4);
+			printf("%s",str4);
+			char  str5[1];
+			sprintf(str5, "%d", l5);
+			printf("%s",str5);
+			char  str6[1];
+			sprintf(str6, "%d", get_pin(18));
+			printf("%s",str6);
+			char  str7[1];
+			sprintf(str7, "%d", get_pin(25));
+			printf("%s",str7);
+			char  str8[1];
+			sprintf(str8, "%d", get_pin(24));
+			printf("%s",str8);
+			char  str9[1];
+			sprintf(str9, "%d", get_pin(8));
+			printf("%s\n",str9);
+		
+                        send(sd , str1 , strlen(str1) , 0 ); 
+			send(sd , str2 , strlen(str2) , 0 ); 
+			send(sd , str3 , strlen(str3) , 0 ); 
+			send(sd , str4 , strlen(str4) , 0 ); 
+			send(sd , str5 , strlen(str5) , 0 ); 
+			send(sd , str6 , strlen(str6) , 0 ); 
+			send(sd , str7 , strlen(str7) , 0 ); 
+			send(sd , str8 , strlen(str8) , 0 ); 
+			send(sd , str9 , strlen(str9) , 0 ); 
+
+
+
+			char * msg = "\n";
+                        send(sd , msg , strlen(msg) , 0 );       
+			         
+                    }
+		    if(strcmp(buffer, "7\n") == 0){	
+			char buff[1024];
+    			FILE *f = fopen(login_path, "r");
+    			fgets(buff, 1024, f);
+   			fclose(f);
+			printf("%s\n","sending login\n");
+ 		        send(sd , buff , strlen(buff) , 0 );  
+		    }
+		    
+		    
+                                       
                 }  
             }  
         }  
     }  
 }
 
-int main()
-{
-	server();
-	return 0;
-}
 
+int main(int argc, char const *argv[])
+{
+    server();
+    return 0;
+}

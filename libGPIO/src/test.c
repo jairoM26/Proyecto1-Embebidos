@@ -1,11 +1,3 @@
-/**
- * @file server.c
- * @author Abraham,David,Jairo
- * @date 12/4/2018 
- * 
- *
- */
-
 #include <stdio.h> 
 #include <string.h>   //strlen 
 #include <stdlib.h> 
@@ -21,26 +13,20 @@
 #include <stdlib.h>
 #include <GPIO.h>
 
-//Defines
+
 #define TRUE   1 
 #define FALSE  0 
 #define PORT 22000
 
 
-
-//Variables para el estado de las Luces
 int l1,l2,l3,l4,l5;
 
 
-
-//Rutas de los archivos
-const char *file_path = "/home/root/image.jpg";//Ruta donde guarda la imagen del webcam
-const char *login_path = "/home/root/login.txt";//Ruta del archivo con los creedenciales de login
-const char *command = "fswebcam -d /dev/video0 -r 920x720 /home/root/image.jpg ";//Commando que ejcuta la webcam para tomar la fotografia
+const char *file_path = "/home/root/image.jpg";
+const char *login_path = "/home/root/login.txt";
+const char *command = "fswebcam -d /dev/video0 -r 920x720 /home/root/image.jpg -S 2";
 size_t fileLen;
 
-
-//Tabla para codificar la imagen en base64
 static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
                                 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -49,16 +35,9 @@ static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
                                 'w', 'x', 'y', 'z', '0', '1', '2', '3',
                                 '4', '5', '6', '7', '8', '9', '+', '/'};
-
 static char *decoding_table = NULL;
 static int mod_table[] = {0, 2, 1};
 
-
-/**
- * @brief Metodo para construir la tabla de codificacion
- *
- * 
- */
 void build_decoding_table() {
 
   decoding_table = malloc(256);
@@ -67,11 +46,6 @@ void build_decoding_table() {
     decoding_table[(unsigned char) encoding_table[i]] = i;
 }
 
-/**
- * @brief Metodo para codificar la imagen en base64
- *
- * 
- */
 char *base64_encode(const unsigned char *data,
                     size_t input_length,
                     size_t *output_length) {
@@ -101,27 +75,25 @@ char *base64_encode(const unsigned char *data,
   return encoded_data;
 }
 
-
-/**
- * @brief  Abre el archivo de la imagen
- *
- * 
- */
 char* ReadFile(const char *name)
 {
   FILE *file;
   unsigned char *buffer;
-  char *lobi;                                                                                                                                                                                               
+  char *lobi;
+
+  //Open file                                                                                                                                                                                                
   file = fopen(name , "rb");
   if (!file)
     {
       fprintf(stderr, "Unable to open file %s", name);
     }
-                                                                                                                                                                                   
+
+  //Get file length                                                                                                                                                                                          
   fseek(file, 0, SEEK_END);
   fileLen=ftell(file);
   fseek(file, 0, SEEK_SET);
-                                                                                                                                                                                   
+
+  //Allocate memory                                                                                                                                                                                          
   buffer=(char *)malloc(fileLen+1);
   if (!buffer)
     {
@@ -130,26 +102,23 @@ char* ReadFile(const char *name)
       
     }
 
-                                                                                                                                                                         
+  //Read file contents into buffer                                                                                                                                                                           
   fread(buffer, fileLen, 1, file);
-  size_t output_length = 0; 
-  lobi = base64_encode(buffer, fileLen, &output_length); 
-  
+  size_t output_length = 0; // note *NOT* a pointer
+  lobi = base64_encode(buffer, fileLen, &output_length); // note address-of operator
+  //printf("Data: %s\n", lobi);
   fclose(file);
+  //insert_blob(buffer);
   free(buffer);
   return lobi;
 }
 
 
-/**
- * @brief Lleva el hilo principal del servidor
- * realiza todas las operaciones sobre el mismo
- * 
- */
-
 void server(){ 
 
     //Set de pines/////////////////////////////
+    
+
     setup_io();
     configure_pin(4); //garaje
     configure_pin(27); //sala
@@ -160,19 +129,13 @@ void server(){
     configure_pin(25);  //Puerta Principal
     configure_pin(24);  //Puerta Puerta cuarto
     configure_pin(8);   //Puerta cuarto
-    ////////////////////////////////////////////
+   
 
 
 
 
-    //Set inicial de las luces///////////////////////////////////
+    ////////////////////////////////////////
     l1,l2,l3,l4,l5 = 0;
-    /////////////////////////////////////////////////////////////
-
-
-
-
-
     int opt = TRUE;  
     int convertdata;
     int master_socket , addrlen , new_socket , client_socket[30] , 
@@ -327,10 +290,9 @@ void server(){
                 //Echo back the message that came in 
                 else
                 {  
-///////////////////////////Verificacion de msg del cliente//////////////////////////////////////////////////
+                    //set the string terminating NULL byte on the end 
+                    //of the data read 
                     
-
-//Pide la imagen////////////////////////////////////////////////////////////////////////////////////////////
                     if(strcmp(buffer, "0\n") == 0){    
                     	int status = system(command);
                         char * msg = ReadFile(file_path);
@@ -340,7 +302,6 @@ void server(){
                         send(sd , msg1 , strlen(msg1) , 0 ); 
                   
                     } 
-//Enciende luz 1/////////////////////////////////////////////////////////////////////////////////////////////
                     if(strcmp(buffer, "1\n") == 0){
                     	if(l1==1){
 				l1=0;
@@ -353,7 +314,6 @@ void server(){
 				set_pin(4,1);
 			}             
                     }
-//Enciende luz 2/////////////////////////////////////////////////////////////////////////////////////////////
 		    if(strcmp(buffer, "2\n") == 0){
                         if(l2==1){
 				l2=0;
@@ -366,7 +326,6 @@ void server(){
 				set_pin(27,1);
 			}                     
                     }
-//Enciende luz 3/////////////////////////////////////////////////////////////////////////////////////////////
 		    if(strcmp(buffer, "3\n") == 0){
                         if(l3==1){
 				l3=0;
@@ -379,7 +338,6 @@ void server(){
 				set_pin(17,1);
 			}                     
                     }
-//Enciende luz 4/////////////////////////////////////////////////////////////////////////////////////////////
 		    if(strcmp(buffer, "4\n") == 0){
                         if(l4==1){
 				l4=0;
@@ -392,7 +350,6 @@ void server(){
 				set_pin(3,1);
 			}                    
                     }
-//Enciende luz 5/////////////////////////////////////////////////////////////////////////////////////////////
                     if(strcmp(buffer, "5\n") == 0){
                         if(l5==1){
 				l5=0;
@@ -405,7 +362,6 @@ void server(){
 				set_pin(2,1);
 			}                     
                     }
-//Envia las senales de todos los pines///////////////////////////////////////////////////////////////////////
 		    if(strcmp(buffer, "6\n") == 0){
 			printf("%s ","Signals send");
 			char  str1[1];
@@ -452,7 +408,6 @@ void server(){
                         send(sd , msg , strlen(msg) , 0 );       
 			         
                     }
-//Envia los creedenciales del login////////////////////////////////////////////////////////////
 		    if(strcmp(buffer, "7\n") == 0){	
 			char buff[1024];
     			FILE *f = fopen(login_path, "r");

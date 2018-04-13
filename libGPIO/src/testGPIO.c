@@ -24,7 +24,7 @@ int l1,l2,l3,l4,l5;
 
 const char *file_path = "/home/root/image.jpg";
 const char *login_path = "/home/root/login.txt";
-const char *command = "fswebcam -d /dev/video0 -r 920x720 /home/root/image.jpg ";
+const char *command = "fswebcam -d /dev/video0 -r 920x720 /home/root/image.jpg -S 2";
 size_t fileLen;
 
 static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
